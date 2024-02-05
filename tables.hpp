@@ -86,10 +86,11 @@ using config_table = eosio::multi_index<"config"_n, config
 >;
 
 struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] whitelisted_tokens {
+  uint64_t        ID;
   eosio::symbol   token_symbol;
   eosio::name     contract;
 
-  uint64_t primary_key() const { return contract.value; }
+  uint64_t primary_key() const { return ID; }
   uint128_t secondary_key() const{ return mix64to128(token_symbol.code().raw(), contract.value); }
 };
 using white_table = eosio::multi_index<"whitelist"_n, whitelisted_tokens,

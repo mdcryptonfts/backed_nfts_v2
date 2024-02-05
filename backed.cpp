@@ -21,6 +21,15 @@ ACTION backednfts::clearconfig(){
 	}
 }
 
+ACTION backednfts::clearwlist(){
+	require_auth(get_self());
+
+	auto it = white_t.begin();
+	while(it != white_t.end()){
+		it = white_t.erase(it);
+	}
+}
+
 ACTION backednfts::addblacklist(const std::vector<eosio::name>& contracts_to_blacklist){
 	require_auth(get_self());
 
@@ -46,6 +55,7 @@ ACTION backednfts::addwhitelist(const eosio::symbol& token_symbol, const eosio::
 
 	if(it == tokens_secondary.end()){
 		white_t.emplace(get_self(), [&](auto &_row){
+			_row.ID = white_t.available_primary_key();
 			_row.token_symbol = token_symbol;
 			_row.contract = contract;
 		});
@@ -298,29 +308,26 @@ ACTION backednfts::rmvwhitelist(const eosio::symbol& token_symbol, const eosio::
 	it = tokens_secondary.erase(it);
 }
 
+
 ACTION backednfts::setclaimable(const eosio::name& authorizer, const std::vector<ASSET_UPDATE>& assets_to_update){
 	require_auth(get_self());
 
 	for(ASSET_UPDATE nft : assets_to_update){
-		bool processAsset = true;
-		if(!is_account(nft.claimer)){
-			processAsset = false;
-		}
 
-		if(processAsset){
+		if(is_account(nft.claimer)){
+
 			auto it = nfts_t.find(nft.asset_id);
-			if(it == nfts_t.end()){
-				processAsset = false;
-			}
 
-			if(processAsset){
+			if(it != nfts_t.end()){
+
 				if(it->is_claimable == 0){
 					nfts_t.modify(it, same_payer, [&](auto &_nft){
 						_nft.is_claimable = 1;
 						_nft.claimer = nft.claimer;
 					});
 				} 
-			}
+
+			}		
 		}
 	}
 }

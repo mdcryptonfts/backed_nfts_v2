@@ -29,6 +29,7 @@ CONTRACT backednfts : public contract {
 		//Main Actions
 		ACTION clearassets();
 		ACTION clearconfig();
+		ACTION clearwlist();
 		ACTION addblacklist(const std::vector<eosio::name>& contracts_to_blacklist);
 		ACTION addwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
 		ACTION announcedepo(const eosio::name& user, const std::vector<FUNGIBLE_TOKEN>& tokens);
@@ -39,7 +40,7 @@ CONTRACT backednfts : public contract {
 		ACTION logremaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens);
 		ACTION rmvblacklist(const std::vector<eosio::name>& contracts_to_remove);
 		ACTION rmvwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
-		ACTION setclaimable(const std::vector<ASSET_UPDATE>& assets_to_update);
+		ACTION setclaimable(const eosio::name& authorizer, const std::vector<ASSET_UPDATE>& assets_to_update);
 
 		//Notifications
 		[[eosio::on_notify("atomicassets::transfer")]] void handle_nft_transfer(name _owner, name receiver, 
