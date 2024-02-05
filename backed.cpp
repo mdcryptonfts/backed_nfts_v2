@@ -125,13 +125,13 @@ ACTION backednfts::announcedepo(const eosio::name& user, const std::vector<FUNGI
 }
 
 
-ACTION backednfts::backnft(const eosio::name& user, const uint64_t& asset_id,
+ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_owner, const uint64_t& asset_id,
 	const std::vector<FUNGIBLE_TOKEN>& tokens_to_back)
 {
 	check(false, "contract is publicly available, come back later");
 
 	require_auth(user);
-	auto atomic_it = atomics_t(ATOMICASSETS_CONTRACT, user.value).require_find(asset_id, "you must own the asset in order to back it");
+	auto atomic_it = atomics_t(ATOMICASSETS_CONTRACT, asset_owner.value).require_find(asset_id, ("asset " + to_string(asset_id) + " could not be located").c_str());
 
     if(atomic_it->template_id != -1){
         auto template_itr = atomic_temps(ATOMICASSETS_CONTRACT, atomic_it->collection_name.value).require_find(atomic_it->template_id, "template could not be found");
