@@ -45,6 +45,14 @@ std::vector<std::string> backednfts::get_words(std::string memo){
 	return words;
 }
 
+bool backednfts::has_balance_object(const eosio::name& user, const eosio::name& contract, const eosio::symbol& token_symbol){
+    accounts account_t = accounts(contract, user.value);
+    const uint64_t raw_token_symbol = token_symbol.code().raw();
+    auto it = account_t.find(raw_token_symbol);
+    if(it == account_t.end()) return false;
+    return true;
+}
+
 bool backednfts::is_an_authorizer(const eosio::name& wallet, const std::vector<eosio::name>& authorizers){
 	if(std::find(authorizers.begin(), authorizers.end(), wallet) != authorizers.end()) return true;	
 	return false;

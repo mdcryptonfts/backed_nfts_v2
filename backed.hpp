@@ -67,6 +67,7 @@ CONTRACT backednfts : public contract {
 		void check_token_exists(const symbol& token_symbol, const name& contract);
 		bool contract_is_blacklisted(const name& contract);
 		std::vector<std::string> get_words(std::string memo);
+		bool has_balance_object(const eosio::name& user, const eosio::name& contract, const eosio::symbol& token_symbol);
 		bool is_an_authorizer(const eosio::name& wallet, const std::vector<eosio::name>& authorizers);
 		bool is_ignored(const eosio::name& contract, const std::vector<eosio::name>& ignore_list);
 		void log_remaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens);

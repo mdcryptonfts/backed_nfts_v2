@@ -269,6 +269,9 @@ ACTION backednfts::claimtokens(const name& claimer, const uint64_t& asset_id,
 			&& e.quantity.amount > 0
 			&& !is_ignored(e.token_contract, contract_ignore_list)
 		){
+			if(!has_balance_object(claimer, e.token_contract, e.quantity.symbol)){
+				check(false, ("you need to use the 'open' action on " + e.token_contract.to_string() + " contract for " + e.quantity.symbol.code().to_string() + " token").c_str());
+			}
 			transfer_tokens(claimer, e.quantity, e.token_contract, TOKEN_TRANSFER_MEMO(asset_id));
 			e.quantity.amount = 0;
 		}
