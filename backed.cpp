@@ -30,6 +30,29 @@ ACTION backednfts::clearwlist(){
 	}
 }
 
+
+ACTION backednfts::addnewsigner(const eosio::name& signer_name){
+	require_auth(get_self());
+
+	if(!is_account(signer_name)){
+		check(false, "signer is not a valid account");
+	}
+
+	auto it = config_t.require_find(0, ERR_CONFIG_NOT_FOUND);
+
+	std::vector<eosio::name> existing = it->authorizers;
+
+	if(std::find(existing.begin(), existing.end(), signer_name) != existing.end()){
+		check(false, "signer already exists");
+	}	
+
+	existing.push_back(signer_name);
+
+	config_t.modify(it, get_self(), [&](auto &_config){
+		_config.authorizers = existing;
+	});
+}
+
 ACTION backednfts::addblacklist(const std::vector<eosio::name>& contracts_to_blacklist){
 	require_auth(get_self());
 
@@ -287,6 +310,29 @@ ACTION backednfts::logremaining(const uint64_t& asset_id, const std::vector<FUNG
 	require_auth(get_self());
 }
 
+ACTION backednfts::removesigner(const eosio::name& signer_name){
+	require_auth(get_self());
+
+	auto it = config_t.require_find(0, ERR_CONFIG_NOT_FOUND);
+
+	std::vector<eosio::name> existing = it->authorizers;
+
+    existing.erase(
+        std::remove_if(
+            existing.begin(), 
+            existing.end(),
+            [&](const eosio::name& signer) {
+                return signer == signer_name;
+            }
+        ),
+        existing.end()
+    );
+
+	config_t.modify(it, get_self(), [&](auto &_config){
+		_config.authorizers = existing;
+	});
+}
+
 ACTION backednfts::rmvblacklist(const std::vector<eosio::name>& contracts_to_remove){
 	require_auth(get_self());
 
@@ -313,7 +359,13 @@ ACTION backednfts::rmvwhitelist(const eosio::symbol& token_symbol, const eosio::
 
 
 ACTION backednfts::setclaimable(const eosio::name& authorizer, const std::vector<ASSET_UPDATE>& assets_to_update){
-	require_auth(get_self());
+	require_auth(authorizer);
+
+	auto config = config_t.require_find(0, ERR_CONFIG_NOT_FOUND);
+
+	if(!is_an_authorizer(authorizer, config->authorizers)){
+		check(false, "you don't have authorizer permissions");
+	}
 
 	for(ASSET_UPDATE nft : assets_to_update){
 
@@ -324,13 +376,59 @@ ACTION backednfts::setclaimable(const eosio::name& authorizer, const std::vector
 			if(it != nfts_t.end()){
 
 				if(it->is_claimable == 0){
-					nfts_t.modify(it, same_payer, [&](auto &_nft){
-						_nft.is_claimable = 1;
-						_nft.claimer = nft.claimer;
-					});
-				} 
+					//check if this authorizer already chose
+					std::vector<AUTH_OBJECT> existing_auths = it->received_auths;
 
+					bool alreadyVoted = false;
+					for(AUTH_OBJECT& e : existing_auths){
+						if(e.authorizer_name == authorizer){
+							e.claimer = nft.claimer;
+							alreadyVoted = true;
+							break;
+						}
+					}
+
+					std::vector<AUTH_OBJECT> placeholders = it->required_auths;
+					if(!alreadyVoted){
+						existing_auths.push_back({authorizer, nft.claimer});
+						placeholders.pop_back();
+					}
+
+					uint8_t is_claimable = 0;
+					eosio::name claimer = it->claimer;
+					const uint8_t threshold = config->global_threshold;
+					uint8_t vote_count = 0;
+
+					for(AUTH_OBJECT e : existing_auths){
+						if(e.claimer == nft.claimer){
+							vote_count ++;
+						}
+						if(vote_count >= threshold){
+							claimer = nft.claimer;
+							is_claimable = 1;
+							break;
+						}
+					}
+
+					nfts_t.modify(it, same_payer, [&](auto &_nft){
+						_nft.is_claimable = is_claimable;
+						_nft.claimer = claimer;
+						_nft.required_auths = placeholders;
+						_nft.received_auths = existing_auths; 
+					});
+
+				} 
 			}		
 		}
 	}
+}
+
+ACTION backednfts::setthreshold(const uint8_t& new_threshold){
+	require_auth(get_self());
+
+	auto it = config_t.require_find(0, ERR_CONFIG_NOT_FOUND);
+
+	config_t.modify(it, get_self(), [&](auto &_config){
+		_config.global_threshold = new_threshold;
+	});
 }

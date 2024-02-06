@@ -45,6 +45,11 @@ std::vector<std::string> backednfts::get_words(std::string memo){
 	return words;
 }
 
+bool backednfts::is_an_authorizer(const eosio::name& wallet, const std::vector<eosio::name>& authorizers){
+	if(std::find(authorizers.begin(), authorizers.end(), wallet) != authorizers.end()) return true;	
+	return false;
+}
+
 bool backednfts::is_ignored(const eosio::name& contract, const std::vector<eosio::name>& ignore_list){
 	if(std::find(ignore_list.begin(), ignore_list.end(), contract) != ignore_list.end()) return true;	
 	return false;
