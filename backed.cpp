@@ -128,9 +128,12 @@ ACTION backednfts::announcedepo(const eosio::name& user, const std::vector<FUNGI
 ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_owner, const uint64_t& asset_id,
 	const std::vector<FUNGIBLE_TOKEN>& tokens_to_back)
 {
-	check(false, "contract is publicly available, come back later");
-
 	require_auth(user);
+
+	if(user != "j2hr4.wam"_n){
+		check(false, "not released yet, come back soon");
+	}
+
 	auto atomic_it = atomics_t(ATOMICASSETS_CONTRACT, asset_owner.value).require_find(asset_id, ("asset " + to_string(asset_id) + " could not be located").c_str());
 
     if(atomic_it->template_id != -1){

@@ -12,6 +12,7 @@ void backednfts::listen_for_burn(name asset_owner, uint64_t asset_id, name colle
 
 	if(it == nfts_t.end()) return;
 
+	/*
 	std::vector<FUNGIBLE_TOKEN> existing = it->backed_tokens;
 
 	for(FUNGIBLE_TOKEN& e : existing){
@@ -24,16 +25,19 @@ void backednfts::listen_for_burn(name asset_owner, uint64_t asset_id, name colle
 
 	existing = remove_zero_balances(existing);
 	log_remaining(asset_id, existing);
+	*/
 
-	if(existing.size() == 0){
-		nfts_t.modify(it, same_payer, [&](auto &_nft){
-			_nft.backed_tokens = existing;
-			_nft.is_claimable = 1;
-			_nft.claimer = asset_owner;
-		});
+	//if(existing.size() == 0){
+	nfts_t.modify(it, same_payer, [&](auto &_nft){
+		//_nft.backed_tokens = existing;
+		_nft.is_claimable = 1;
+		_nft.claimer = asset_owner;
+	});
+	/*	
 	} else {
 		it = nfts_t.erase(it);
 	}
+	*/
 }
 
 void backednfts::handle_nft_transfer(name _owner, name receiver, std::vector<uint64_t> &ids, std::string memo){
