@@ -53,6 +53,20 @@ ACTION backednfts::addnewsigner(const eosio::name& signer_name){
 	});
 }
 
+ACTION backednfts::addbetas(const std::vector<eosio::name>& wallets_to_add){
+	require_auth(get_self());
+
+	for(name w : wallets_to_add){
+		auto it = beta_t.find(w.value);
+
+		if(it == beta_t.end()){
+			beta_t.emplace(get_self(), [&](auto &_row){
+				_row.wallet = w;
+			});
+		}
+	}
+}
+
 ACTION backednfts::addblacklist(const std::vector<eosio::name>& contracts_to_blacklist){
 	require_auth(get_self());
 
@@ -153,8 +167,8 @@ ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_own
 {
 	require_auth(user);
 
-	if(user != "j2hr4.wam"_n){
-		check(false, "not released yet, come back soon");
+	if(!is_beta_tester(user)){
+		check(false, "only beta testers allowed right now. contact Mike D for access");
 	}
 
 	auto atomic_it = atomics_t(ATOMICASSETS_CONTRACT, asset_owner.value).require_find(asset_id, ("asset " + to_string(asset_id) + " could not be located").c_str());
@@ -280,6 +294,11 @@ ACTION backednfts::claimtokens(const name& claimer, const uint64_t& asset_id,
 	}
 
 	existing = remove_zero_balances(existing);
+
+	if(existing.size() == it->backed_tokens.size()){
+		check(false, "you are trying to claim 0 tokens");
+	}
+
 	log_remaining(asset_id, existing);
 
 	if(existing.size() == 0){
@@ -311,6 +330,18 @@ ACTION backednfts::initconfig(){
 
 ACTION backednfts::logremaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens){
 	require_auth(get_self());
+}
+
+ACTION backednfts::removebetas(const std::vector<eosio::name>& wallets_to_remove){
+	require_auth(get_self());
+
+	for(name w : wallets_to_remove){
+		auto it = beta_t.find(w.value);
+
+		if(it != beta_t.end()){
+			it = beta_t.erase(it);
+		}
+	}
 }
 
 ACTION backednfts::removesigner(const eosio::name& signer_name){

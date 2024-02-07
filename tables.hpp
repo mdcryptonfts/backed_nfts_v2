@@ -72,6 +72,15 @@ using balances_tbl = eosio::multi_index<"balances"_n, balances
 >;
 
 
+struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] beta_testers {
+  eosio::name   wallet;
+
+  uint64_t primary_key() const { return wallet.value; }
+};
+using beta_table = eosio::multi_index<"betatesters"_n, beta_testers
+>;
+
+
 struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] blacklisted_tokens {
   eosio::name   contract;
 

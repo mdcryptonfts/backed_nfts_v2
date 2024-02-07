@@ -30,6 +30,7 @@ CONTRACT backednfts : public contract {
 		ACTION clearassets();
 		ACTION clearconfig();
 		ACTION clearwlist();
+		ACTION addbetas(const std::vector<eosio::name>& wallets_to_add);
 		ACTION addblacklist(const std::vector<eosio::name>& contracts_to_blacklist);
 		ACTION addnewsigner(const eosio::name& signer_name);
 		ACTION addwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
@@ -39,6 +40,7 @@ CONTRACT backednfts : public contract {
 			const std::vector<eosio::name>& contract_ignore_list, const uint8_t& limit);
 		ACTION initconfig();
 		ACTION logremaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens);
+		ACTION removebetas(const std::vector<eosio::name>& wallets_to_remove);
 		ACTION removesigner(const eosio::name& signer_name);
 		ACTION rmvblacklist(const std::vector<eosio::name>& contracts_to_remove);
 		ACTION rmvwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
@@ -57,6 +59,7 @@ CONTRACT backednfts : public contract {
 
 		//Tables
 		balances_tbl balances_t = balances_tbl(get_self(), get_self().value);
+		beta_table beta_t = beta_table(get_self(), get_self().value);
 		black_table black_t = black_table(get_self(), get_self().value);
 		config_table config_t = config_table(get_self(), get_self().value);
 		nfts_table nfts_t = nfts_table(get_self(), get_self().value);
@@ -69,6 +72,7 @@ CONTRACT backednfts : public contract {
 		std::vector<std::string> get_words(std::string memo);
 		bool has_balance_object(const eosio::name& user, const eosio::name& contract, const eosio::symbol& token_symbol);
 		bool is_an_authorizer(const eosio::name& wallet, const std::vector<eosio::name>& authorizers);
+		bool is_beta_tester(const eosio::name& user);
 		bool is_ignored(const eosio::name& contract, const std::vector<eosio::name>& ignore_list);
 		void log_remaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens);
 		std::vector<FUNGIBLE_TOKEN> remove_zero_balances(const std::vector<FUNGIBLE_TOKEN>& balances);

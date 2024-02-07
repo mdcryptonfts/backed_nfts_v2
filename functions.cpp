@@ -58,6 +58,14 @@ bool backednfts::is_an_authorizer(const eosio::name& wallet, const std::vector<e
 	return false;
 }
 
+bool backednfts::is_beta_tester(const eosio::name& user){
+	auto it = beta_t.find(user.value);
+	if(it == beta_t.end()){
+		return false;
+	}
+	return true;
+}
+
 bool backednfts::is_ignored(const eosio::name& contract, const std::vector<eosio::name>& ignore_list){
 	if(std::find(ignore_list.begin(), ignore_list.end(), contract) != ignore_list.end()) return true;	
 	return false;
