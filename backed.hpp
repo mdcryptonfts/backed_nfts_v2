@@ -37,6 +37,8 @@ CONTRACT backednfts : public contract {
 		ACTION announcedepo(const eosio::name& user, const std::vector<FUNGIBLE_TOKEN>& tokens);
 		ACTION backnft(const eosio::name& user, const eosio::name& asset_owner, const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& tokens_to_back);
 		ACTION blacklistsym(const std::vector<eosio::symbol_code>& symbols_to_blacklist);
+		ACTION claimall(const name& claimer, const std::vector<uint64_t>& asset_ids,
+			const std::vector<eosio::name>& contract_ignore_list, const uint8_t& limit);
 		ACTION claimtokens(const name& claimer, const uint64_t& asset_id,
 			const std::vector<eosio::name>& contract_ignore_list, const uint8_t& limit);
 		ACTION initconfig();
