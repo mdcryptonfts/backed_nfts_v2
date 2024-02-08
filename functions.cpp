@@ -71,6 +71,16 @@ bool backednfts::is_ignored(const eosio::name& contract, const std::vector<eosio
 	return false;
 }
 
+void backednfts::log_back_asset(const eosio::name& backer, const eosio::name& asset_owner, 
+	const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& tokens_to_back, 
+	const eosio::name& collection_name, const eosio::name& schema_name,
+	const int32_t& template_id)
+{
+    action(permission_level{get_self(), "active"_n}, get_self(),"logbackasset"_n,std::tuple{ backer, asset_owner, asset_id, 
+    	tokens_to_back, collection_name, schema_name, template_id }).send();
+    return;
+}
+
 void backednfts::log_remaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens){
     action(permission_level{get_self(), "active"_n}, get_self(),"logremaining"_n,std::tuple{ asset_id, backed_tokens }).send();
     return;
@@ -91,6 +101,14 @@ std::vector<FUNGIBLE_TOKEN> backednfts::remove_zero_balances(const std::vector<F
     );
     
     return cleanedBalances;
+}
+
+bool backednfts::symbol_is_blacklisted(const eosio::symbol_code& symbol){
+	auto it = blacklisted_symbols_t.find(symbol.raw());
+	if(it == blacklisted_symbols_t.end()){
+		return false;
+	}
+	return true;
 }
 
 bool backednfts::token_is_whitelisted(const symbol& token_symbol, const name& contract){

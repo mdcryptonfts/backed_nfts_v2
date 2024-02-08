@@ -80,6 +80,12 @@ struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] beta_testers {
 using beta_table = eosio::multi_index<"betatesters"_n, beta_testers
 >;
 
+struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] blacklisted_symbols {
+  eosio::symbol_code    symbol_code;
+  uint64_t primary_key() const { return symbol_code.raw(); }
+};
+using black_syms = eosio::multi_index<"blacksymbols"_n, blacklisted_symbols
+>;
 
 struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] blacklisted_tokens {
   eosio::name   contract;

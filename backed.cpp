@@ -185,6 +185,14 @@ ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_own
 	std::vector<FUNGIBLE_TOKEN> existing = balance_it->balances;
 
 	for(FUNGIBLE_TOKEN t : tokens_to_back){
+		if(symbol_is_blacklisted(t.quantity.symbol.code())
+			&&
+			!token_is_whitelisted(t.quantity.symbol, t.token_contract)
+			)
+		{
+			check(false, t.quantity.symbol.code().to_string() + " is a blacklisted symbol");
+		}
+
 		check(t.quantity.amount > 0, "must back with positive amount");
 
 		bool hasThisToken = false;
@@ -232,7 +240,10 @@ ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_own
 
 		config_t.modify(c_it, get_self(), [&](auto &_config){
 			_config.total_nfts_backed += 1;
-		});			
+		});	
+
+		log_back_asset(user, asset_owner, asset_id, tokens_to_back, atomic_it->collection_name, 
+			atomic_it->schema_name, atomic_it->template_id);			
 	}
 
 	else{
@@ -263,8 +274,26 @@ ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_own
 		nfts_t.modify(asset_it, user, [&](auto &_nft){
 			_nft.backed_tokens = existingBackings;
 		});
+
+		log_back_asset(user, asset_owner, asset_id, existingBackings, atomic_it->collection_name, 
+			atomic_it->schema_name, atomic_it->template_id);		
 	}
 
+}
+
+
+ACTION backednfts::blacklistsym(const std::vector<eosio::symbol_code>& symbols_to_blacklist){
+	require_auth(get_self());
+
+	for(symbol_code s : symbols_to_blacklist){
+		auto it = blacklisted_symbols_t.find(s.raw());
+
+		if(it == blacklisted_symbols_t.end()){
+			blacklisted_symbols_t.emplace(get_self(), [&](auto &_row){
+				_row.symbol_code = s;
+			});
+		}
+	}
 }
 
 ACTION backednfts::claimtokens(const name& claimer, const uint64_t& asset_id,
@@ -328,6 +357,14 @@ ACTION backednfts::initconfig(){
 }
 
 
+ACTION backednfts::logbackasset(const eosio::name& backer, const eosio::name& asset_owner, 
+	const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& tokens_to_back, 
+	const eosio::name& collection_name, const eosio::name& schema_name,
+	const int32_t& template_id)
+{
+	require_auth(get_self());
+}
+
 ACTION backednfts::logremaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens){
 	require_auth(get_self());
 }
@@ -375,6 +412,18 @@ ACTION backednfts::rmvblacklist(const std::vector<eosio::name>& contracts_to_rem
 
 		if(it != black_t.end()){
 			it = black_t.erase(it);
+		}
+	}
+}
+
+ACTION backednfts::rmvblacksym(const std::vector<eosio::symbol_code>& symbols_to_remove){
+	require_auth(get_self());
+
+	for(symbol_code s : symbols_to_remove){
+		auto it = blacklisted_symbols_t.find(s.raw());
+
+		if(it != blacklisted_symbols_t.end()){
+			it = blacklisted_symbols_t.erase(it);
 		}
 	}
 }
