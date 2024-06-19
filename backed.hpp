@@ -50,6 +50,7 @@ CONTRACT backednfts : public contract {
 		ACTION rmvwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
 		ACTION setclaimable(const eosio::name& authorizer, const std::vector<ASSET_UPDATE>& assets_to_update);
 		ACTION setthreshold(const uint8_t& new_threshold);
+		ACTION withdraw(const name& user, const vector<name>& contract_ignore_list);
 
 		//Notifications
 		[[eosio::on_notify("atomicassets::transfer")]] void handle_nft_transfer(name _owner, name receiver, 
