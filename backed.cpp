@@ -431,18 +431,6 @@ ACTION backednfts::logremaining(const uint64_t& asset_id, const std::vector<FUNG
 	require_auth(get_self());
 }
 
-ACTION backednfts::removebetas(const std::vector<eosio::name>& wallets_to_remove){
-	require_auth(get_self());
-
-	for(name w : wallets_to_remove){
-		auto it = beta_t.find(w.value);
-
-		if(it != beta_t.end()){
-			it = beta_t.erase(it);
-		}
-	}
-}
-
 ACTION backednfts::removesigner(const eosio::name& signer_name){
 	require_auth(get_self());
 

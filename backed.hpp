@@ -44,7 +44,6 @@ CONTRACT backednfts : public contract {
 			const eosio::name& collection_name, const eosio::name& schema_name,
 			const int32_t& template_id);
 		ACTION logremaining(const uint64_t& asset_id, const std::vector<FUNGIBLE_TOKEN>& backed_tokens);
-		ACTION removebetas(const std::vector<eosio::name>& wallets_to_remove);
 		ACTION removesigner(const eosio::name& signer_name);
 		ACTION rmvblacklist(const std::vector<eosio::name>& contracts_to_remove);
 		ACTION rmvblacksym(const std::vector<eosio::symbol_code>& symbols_to_remove);
