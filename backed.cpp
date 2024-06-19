@@ -53,20 +53,6 @@ ACTION backednfts::addnewsigner(const eosio::name& signer_name){
 	});
 }
 
-ACTION backednfts::addbetas(const std::vector<eosio::name>& wallets_to_add){
-	require_auth(get_self());
-
-	for(name w : wallets_to_add){
-		auto it = beta_t.find(w.value);
-
-		if(it == beta_t.end()){
-			beta_t.emplace(get_self(), [&](auto &_row){
-				_row.wallet = w;
-			});
-		}
-	}
-}
-
 ACTION backednfts::addblacklist(const std::vector<eosio::name>& contracts_to_blacklist){
 	require_auth(get_self());
 

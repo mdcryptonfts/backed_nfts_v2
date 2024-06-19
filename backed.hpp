@@ -16,6 +16,7 @@
 #include "tables.hpp"
 
 using namespace eosio;
+using namespace std;
 
 CONTRACT backednfts : public contract {
 	public:
@@ -27,7 +28,6 @@ CONTRACT backednfts : public contract {
 		ACTION clearassets();
 		ACTION clearconfig();
 		ACTION clearwlist();
-		ACTION addbetas(const std::vector<eosio::name>& wallets_to_add);
 		ACTION addblacklist(const std::vector<eosio::name>& contracts_to_blacklist);
 		ACTION addnewsigner(const eosio::name& signer_name);
 		ACTION addwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
@@ -89,6 +89,7 @@ CONTRACT backednfts : public contract {
 		bool symbol_is_blacklisted(const eosio::symbol_code& symbol);
 		bool token_is_whitelisted(const symbol& token_symbol, const name& contract);
 		void transfer_tokens(const name& user, const asset& amount_to_send, const name& contract, const std::string& memo);
+		void upsert_claimable_tokens(const name& user, const vector<FUNGIBLE_TOKEN>& tokens);
 
 		//Safemath
 		int64_t safeAddInt64(const int64_t& a, const int64_t& b);
