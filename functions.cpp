@@ -15,13 +15,9 @@ void backednfts::check_for_duplicates(const std::vector<FUNGIBLE_TOKEN>& tokens_
 }
 
 void backednfts::check_token_exists(const symbol& token_symbol, const name& contract){
-	const uint64_t raw_token_symbol = token_symbol.code().raw();
-	const uint128_t symbol_contract_combo = mix64to128(raw_token_symbol, contract.value);
-	stat_table stat(contract, token_symbol.code().raw());
-	auto stat_itr = stat.find(token_symbol.code().raw());
-	check(stat_itr != stat.end(), "That token does not exist on that contract");
-	check(stat_itr->supply.symbol == token_symbol, "Symbol mismatch. You probably put the wrong amount of decimals in the precision field");
-	return;
+	stat_table stat_t = stat_table( contract, token_symbol.code().raw() );
+	auto itr = stat_t.require_find( token_symbol.code().raw(), "symbol does not exist on that contract" );
+	check( itr->max_supply.symbol.precision() == token_symbol.precision(), "precision mismatch" );
 }
 
 bool backednfts::contract_is_blacklisted(const name& contract){
