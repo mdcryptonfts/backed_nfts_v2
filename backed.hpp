@@ -4,16 +4,13 @@
 #define mix64to128(a, b) (uint128_t(a) << 64 | uint128_t(b))
 
 #include <eosio/eosio.hpp>
-#include <eosio/print.hpp>
 #include <eosio/asset.hpp>
 #include <eosio/system.hpp>
 #include <eosio/symbol.hpp>
-#include <string>
 #include <eosio/crypto.hpp>
 #include <eosio/transaction.hpp>
 #include "include/atomic.hpp"
 #include "include/atomicdata.hpp"
-#include<map>
 #include "structs.hpp"
 #include "constants.hpp"
 #include "tables.hpp"
