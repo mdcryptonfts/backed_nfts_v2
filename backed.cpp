@@ -3,34 +3,6 @@
 #include "on_notify.cpp"
 #include "safe.cpp"
 
-ACTION backednfts::clearassets(){
-	require_auth(get_self());
-
-	auto it = nfts_t.begin();
-	while(it != nfts_t.end()){
-		it = nfts_t.erase(it);
-	}
-}
-
-ACTION backednfts::clearconfig(){
-	require_auth(get_self());
-
-	auto it = config_t.begin();
-	while(it != config_t.end()){
-		it = config_t.erase(it);
-	}
-}
-
-ACTION backednfts::clearwlist(){
-	require_auth(get_self());
-
-	auto it = white_t.begin();
-	while(it != white_t.end()){
-		it = white_t.erase(it);
-	}
-}
-
-
 ACTION backednfts::addnewsigner(const eosio::name& signer_name){
 	require_auth(get_self());
 

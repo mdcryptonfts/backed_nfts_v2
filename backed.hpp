@@ -25,9 +25,6 @@ CONTRACT backednfts : public contract {
 		backednfts(name receiver, name code, datastream<const char *> ds):contract(receiver, code, ds){}
 
 		//Main Actions
-		ACTION clearassets();
-		ACTION clearconfig();
-		ACTION clearwlist();
 		ACTION addblacklist(const std::vector<eosio::name>& contracts_to_blacklist);
 		ACTION addnewsigner(const eosio::name& signer_name);
 		ACTION addwhitelist(const eosio::symbol& token_symbol, const eosio::name& contract);
