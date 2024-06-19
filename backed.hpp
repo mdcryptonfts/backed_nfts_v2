@@ -88,7 +88,7 @@ CONTRACT backednfts : public contract {
 		bool symbol_is_blacklisted(const eosio::symbol_code& symbol);
 		bool token_is_whitelisted(const symbol& token_symbol, const name& contract);
 		void transfer_tokens(const name& user, const asset& amount_to_send, const name& contract, const std::string& memo);
-		void upsert_claimable_tokens(const name& user, const vector<FUNGIBLE_TOKEN>& tokens);
+		void upsert_claimable_tokens(const name& user, vector<FUNGIBLE_TOKEN>& tokens);
 
 		//Safemath
 		int64_t safeAddInt64(const int64_t& a, const int64_t& b);

@@ -123,6 +123,35 @@ void backednfts::transfer_tokens(const name& user, const asset& amount_to_send, 
     return;
 }
 
-void backednfts::upsert_claimable_tokens(const name& user, const vector<FUNGIBLE_TOKEN>& tokens){
+void backednfts::upsert_claimable_tokens(const name& user, vector<FUNGIBLE_TOKEN>& tokens){
+	auto itr = balances_t.find( user.value );
 
+	if( itr == balances_t.end() ){
+
+		balances_t.emplace(_self, [&](auto &row){
+			row.wallet = user;
+			row.balances = tokens;
+		});
+		
+	} else {
+
+		vector<FUNGIBLE_TOKEN> existing_tokens = itr->balances;
+
+		for(FUNGIBLE_TOKEN& t : tokens){
+
+			auto bal_itr = std::find_if( existing_tokens.begin(), existing_tokens.end(), 
+			[&](const auto& b) { return b.quantity.symbol == t.quantity.symbol && b.token_contract == t.token_contract; });
+		
+			if( bal_itr == existing_tokens.end() ){
+				existing_tokens.push_back( t );
+			} else {
+				bal_itr->quantity += t.quantity;
+			}
+
+		}	
+
+		balances_t.modify(itr, _self, [&](auto &row){
+			row.balances = existing_tokens;
+		});
+	}
 }

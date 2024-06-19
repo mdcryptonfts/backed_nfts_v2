@@ -502,56 +502,51 @@ ACTION backednfts::setclaimable(const eosio::name& authorizer, const std::vector
 
 	for(ASSET_UPDATE nft : assets_to_update){
 
-		if(is_account(nft.claimer)){
+		if(!is_account(nft.claimer)) continue;
 
-			auto it = nfts_t.find(nft.asset_id);
+		auto it = nfts_t.find(nft.asset_id);
+		if(it == nfts_t.end()) continue;
 
-			if(it != nfts_t.end()){
+		//check if this authorizer already chose
+		std::vector<AUTH_OBJECT> existing_auths = it->received_auths;
 
-				if(it->is_claimable == 0){
-					//check if this authorizer already chose
-					std::vector<AUTH_OBJECT> existing_auths = it->received_auths;
+		bool alreadyVoted = false;
+		for(AUTH_OBJECT& e : existing_auths){
+			if(e.authorizer_name == authorizer){
+				e.claimer = nft.claimer;
+				alreadyVoted = true;
+				break;
+			}
+		}
 
-					bool alreadyVoted = false;
-					for(AUTH_OBJECT& e : existing_auths){
-						if(e.authorizer_name == authorizer){
-							e.claimer = nft.claimer;
-							alreadyVoted = true;
-							break;
-						}
-					}
+		std::vector<AUTH_OBJECT> placeholders = it->required_auths;
+		if(!alreadyVoted){
+			existing_auths.push_back({authorizer, nft.claimer});
+			placeholders.pop_back();
+		}
 
-					std::vector<AUTH_OBJECT> placeholders = it->required_auths;
-					if(!alreadyVoted){
-						existing_auths.push_back({authorizer, nft.claimer});
-						placeholders.pop_back();
-					}
+		bool is_claimable = 0;
+		const uint8_t threshold = config->global_threshold;
+		uint8_t vote_count = 0;
 
-					uint8_t is_claimable = 0;
-					eosio::name claimer = it->claimer;
-					const uint8_t threshold = config->global_threshold;
-					uint8_t vote_count = 0;
+		for(AUTH_OBJECT e : existing_auths){
+			if(e.claimer == nft.claimer){
+				vote_count ++;
+			}
+			if(vote_count >= threshold){
+				is_claimable = 1;
+				vector<FUNGIBLE_TOKEN> backed_tokens = it->backed_tokens;
+				upsert_claimable_tokens(nft.claimer, backed_tokens);
+				nfts_t.erase(it);
+				break;
+			} 
+		}
 
-					for(AUTH_OBJECT e : existing_auths){
-						if(e.claimer == nft.claimer){
-							vote_count ++;
-						}
-						if(vote_count >= threshold){
-							claimer = nft.claimer;
-							is_claimable = 1;
-							break;
-						}
-					}
-
-					nfts_t.modify(it, same_payer, [&](auto &_nft){
-						_nft.is_claimable = is_claimable;
-						_nft.claimer = claimer;
-						_nft.required_auths = placeholders;
-						_nft.received_auths = existing_auths; 
-					});
-
-				} 
-			}		
+		if(is_claimable != 1){
+			nfts_t.modify(it, same_payer, [&](auto &_nft){
+				_nft.required_auths = placeholders;
+				_nft.received_auths = existing_auths; 
+			});
 		}
 	}
 }
