@@ -125,10 +125,6 @@ ACTION backednfts::backnft(const eosio::name& user, const eosio::name& asset_own
 {
 	require_auth(user);
 
-	if(!is_beta_tester(user)){
-		check(false, "only beta testers allowed right now. contact Mike D for access");
-	}
-
 	auto atomic_it = atomics_t(ATOMICASSETS_CONTRACT, asset_owner.value).require_find(asset_id, ("asset " + to_string(asset_id) + " could not be located").c_str());
 
     if(atomic_it->template_id != -1){
@@ -436,5 +432,11 @@ ACTION backednfts::withdraw(const name& user, const vector<name>& contract_ignor
 	}
 
 	existing = remove_zero_balances( existing );
-	if( existing.size() == 0 ) balances_t.erase( itr );
+	if( existing.size() == 0 ){
+		balances_t.erase( itr );
+	} else {
+		balances_t.modify(itr, same_payer, [&](auto &_bal){
+			_bal.balances = existing;
+		});
+	}
 }
