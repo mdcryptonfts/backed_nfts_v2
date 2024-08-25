@@ -10,23 +10,24 @@ struct [[eosio::table]] account {
 typedef eosio::multi_index< "accounts"_n, account > accounts;
 
 struct [[eosio::table]] assets_s {
-  uint64_t asset_id;
-  name collection_name;
-  name schema_name;
-  int32_t template_id;
-  name ram_payer;
-  std::vector<asset> backed_tokens;
-  std::vector<uint8_t> immutable_serialized_data;
-  std::vector<uint8_t> mutable_serialized_data;
+  uint64_t              asset_id;
+  name                  collection_name;
+  name                  schema_name;
+  int32_t               template_id;
+  name                  ram_payer;
+  std::vector<asset>    backed_tokens;
+  std::vector<uint8_t>  immutable_serialized_data;
+  std::vector<uint8_t>  mutable_serialized_data;
+  
   uint64_t primary_key() const { return asset_id; }
 };
 typedef multi_index<"assets"_n, assets_s> atomics_t;
 
 
 struct [[eosio::table]] stat {
-  asset    	supply;
-  asset 	max_supply;
-  name 		issuer;
+  asset     supply;
+  asset     max_supply;
+  name      issuer;
 
   uint64_t primary_key()const { return supply.symbol.code().raw(); }
 };
@@ -34,13 +35,14 @@ typedef eosio::multi_index< "stat"_n, stat > stat_table;
 
 
 struct [[eosio::table]] templates {
-  int32_t template_id;
-  name schema_name;
-  bool transferable;
-  bool burnable;
-  uint32_t max_supply;
-  uint32_t issued_supply;
+  int32_t         template_id;
+  name            schema_name;
+  bool            transferable;
+  bool            burnable;
+  uint32_t        max_supply;
+  uint32_t        issued_supply;
   vector<uint8_t> immutable_serialized_data;
+
   int32_t primary_key() const { return template_id; }
 };
 
@@ -97,12 +99,12 @@ using black_table = eosio::multi_index<"blacklist"_n, blacklisted_tokens
 
 
 struct [[eosio::table, eosio::contract(CONTRACT_NAME)]] config {
-	uint64_t  			          ID;
+  uint64_t                  ID;
   uint64_t                  total_nfts_backed;    
   std::vector<eosio::name>  authorizers;
   uint8_t                   global_threshold;
 
-	uint64_t primary_key() const { return ID; }
+  uint64_t primary_key() const { return ID; }
 };
 using config_table = eosio::multi_index<"config"_n, config
 >;
